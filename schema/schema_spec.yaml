@@ -1,0 +1,161 @@
+schema_version: 0.2.0
+derived_from: repair_notes_sample.csv (n=30), EDA notebook 01
+changelog:
+  0.2.0: Added `intermittent` as a required severity_flag (corpus-evidenced in 6 notes; overlaps
+    the NFF watch-list combo). Monotonic-extension mechanics proven in notebook Part 3b. Made
+    required at this authored baseline because no cached S3 records exist yet; production discovery
+    additions remain OPTIONAL to preserve backward compatibility with the live cache.
+  0.1.0: Initial hand-derived schema from EDA notebook 01.
+identity_passthrough:
+  description: Trusted structured fields. NEVER re-extracted by the LLM (step 1).
+  fields:
+  - note_id
+  - date
+  - model
+  - model_year
+  - mileage
+extracted_fields:
+  complaint_summary:
+    type: string
+    provenance: step 2
+    description: One-sentence normalized customer complaint.
+  component_mention:
+    type: string
+    provenance: step 4 (pass A)
+    description: Free-text failing component as written; generalization seam -> maps to canonical parts taxonomy
+      in production.
+  subsystem:
+    type: enum
+    provenance: step 4 (pass B), validated step 9
+    values:
+    - infotainment_electronics
+    - hvac
+    - powertrain
+    - electrical_battery
+    - body_doors
+    - chassis_suspension
+    - brakes
+    - adas_safety
+    - tires_wheels
+    - other
+    description: Locked aggregation axis. "other" is the drift release valve.
+    semantic_descriptions:
+      infotainment_electronics: problems with the touchscreen, display, audio, navigation, bluetooth, or backup
+        camera display electronics
+      hvac: 'air conditioning or heating problems: weak or warm airflow, refrigerant leaks, compressor, condenser,
+        or evaporator issues'
+      powertrain: 'engine, transmission, fuel delivery, or hybrid drive problems: misfires, oil leaks, shuddering,
+        hesitation, no-start from fuel or ignition, check engine codes'
+      electrical_battery: 'battery, charging, wiring, grounds, sensors, or starter electrical problems: dead battery,
+        parasitic drain, damaged harness, no-crank'
+      body_doors: 'body, doors, or interior trim problems: sliding doors not opening or closing, rattles, loose
+        trim'
+      chassis_suspension: 'suspension, steering, or alignment problems: pulling, clunks, loose steering, worn bushings
+        or control arms'
+      brakes: 'brake problems: squealing, worn pads, scored rotors'
+      adas_safety: 'driver-assistance safety system problems: collision warning unavailable, radar sensor faults,
+        ADAS module issues'
+      tires_wheels: 'tire, wheel, wheel-bearing, or tire-pressure-sensor problems: uneven wear, humming bearing
+        noise, TPMS warnings'
+      other: a problem that does not fit any other vehicle subsystem category
+  warranty_status:
+    type: enum
+    provenance: step 5
+    values:
+    - covered
+    - denied
+    - undetermined
+    - not_applicable
+    description: 'Spectrum, not boolean: ~2/3 of notes carry no explicit determination.'
+    semantic_descriptions:
+      covered: the repair was performed under warranty at no cost to the customer
+      denied: the repair was determined not to be covered by warranty; customer pays or claim refused
+      undetermined: 'no warranty decision was reached: fault not reproduced, repair declined or pending, case escalated
+        or being monitored'
+      not_applicable: 'no defect exists so no warranty question arises: normal operation explained, or damage from
+        an external cause'
+  denial_reason:
+    type: enum|null
+    provenance: step 5
+    values:
+    - wear_item
+    - out_of_warranty
+    - external_cause
+    - customer_caused
+    semantic_descriptions:
+      wear_item: a normal wear-and-tear item such as brake pads or tires, not a defect
+      out_of_warranty: warranty coverage has expired by time or mileage
+      external_cause: damage caused by something outside the vehicle, such as animals, accidents, or environment
+      customer_caused: caused by customer actions or aftermarket modifications
+  resolution_status:
+    type: enum
+    provenance: step 6
+    values:
+    - repaired
+    - declined
+    - escalated
+    - monitoring
+    - nff
+    - parts_pending
+    - no_defect
+    - unclear
+    semantic_descriptions:
+      repaired: 'the problem was fixed: a part replaced, adjusted, reprogrammed, cleaned, or secured, and verified
+        working'
+      declined: a repair was recommended but the customer declined it
+      escalated: the case was escalated to a technical support line or field engineering, awaiting guidance
+      monitoring: no definitive fix; customer advised to monitor and return if the problem recurs
+      nff: the reported problem could not be reproduced or verified; no fault found
+      parts_pending: repair identified but waiting on parts that are ordered or backordered
+      no_defect: inspection found normal operation; customer was educated, no repair needed
+      unclear: the note does not make the outcome clear
+  severity:
+    type: enum (ordinal)
+    provenance: step 7
+    values:
+    - low
+    - medium
+    - high
+    - critical
+    description: LLM judgment with documented anchors; audited via flags below.
+  severity_flags:
+    type: object of booleans
+    provenance: steps 7-8
+    fields:
+    - safety_related
+    - vehicle_disabled
+    - repeat_visit
+    - customer_distress
+    - fleet_signal
+    - intermittent
+    description: Deterministically cross-checkable evidence behind the ordinal.
+    semantic_descriptions:
+      safety_related: 'the problem affects a safety system or creates a safety risk: brakes, collision avoidance,
+        backup camera, loss of control'
+      vehicle_disabled: the vehicle would not start or could not be driven
+      repeat_visit: the customer has already brought the vehicle in before for this same problem
+      customer_distress: the customer is described as frustrated, upset, or losing confidence in the vehicle
+      fleet_signal: 'the note references a wider pattern: a technical service bulletin, tech line, or district reps
+        collecting data'
+      intermittent: 'the fault comes and goes rather than being constantly present: happens sometimes, randomly,
+        or could not be reproduced on demand'
+  confidence:
+    type: enum
+    values:
+    - high
+    - medium
+    - low
+    provenance: design
+    description: LLM self-report; low-confidence rows land in the analyst review queue.
+  evidence_quote:
+    type: string
+    provenance: design (auditability)
+    description: Verbatim span from the note supporting subsystem+severity; must be a substring of the note (deterministic
+      validation).
+uncertainty_contract: Any field the note does not support MUST be undetermined/unclear/null - never guessed. Rows
+  with confidence=low or validation failures render in a needs-review queue, excluded from defect aggregations by
+  default.
+stakeholder_questions:
+- Can notes be linked by VIN to detect repeat visits deterministically? (step 8)
+- Does an internal canonical parts taxonomy exist to replace the mined subsystem enum?
+- Is there an official abbreviation glossary to seed the lexicon? (step 3)

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "schema_version: 0.2.0 — added intermittent severity_flag (see docs/build-notes.md, notebook Part 3b)",
+  "title": "RepairNoteExtraction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "complaint_summary",
+    "component_mention",
+    "subsystem",
+    "warranty_status",
+    "resolution_status",
+    "severity",
+    "severity_flags",
+    "confidence",
+    "evidence_quote"
+  ],
+  "properties": {
+    "complaint_summary": {
+      "type": "string",
+      "maxLength": 200
+    },
+    "component_mention": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "subsystem": {
+      "enum": [
+        "infotainment_electronics",
+        "hvac",
+        "powertrain",
+        "electrical_battery",
+        "body_doors",
+        "chassis_suspension",
+        "brakes",
+        "adas_safety",
+        "tires_wheels",
+        "other"
+      ]
+    },
+    "warranty_status": {
+      "enum": [
+        "covered",
+        "denied",
+        "undetermined",
+        "not_applicable"
+      ]
+    },
+    "denial_reason": {
+      "enum": [
+        "wear_item",
+        "out_of_warranty",
+        "external_cause",
+        "customer_caused",
+        null
+      ]
+    },
+    "resolution_status": {
+      "enum": [
+        "repaired",
+        "declined",
+        "escalated",
+        "monitoring",
+        "nff",
+        "parts_pending",
+        "no_defect",
+        "unclear"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ]
+    },
+    "severity_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "safety_related",
+        "vehicle_disabled",
+        "repeat_visit",
+        "customer_distress",
+        "fleet_signal",
+        "intermittent"
+      ],
+      "properties": {
+        "safety_related": {
+          "type": "boolean"
+        },
+        "vehicle_disabled": {
+          "type": "boolean"
+        },
+        "repeat_visit": {
+          "type": "boolean"
+        },
+        "customer_distress": {
+          "type": "boolean"
+        },
+        "fleet_signal": {
+          "type": "boolean"
+        },
+        "intermittent": {
+          "type": "boolean"
+        }
+      }
+    },
+    "confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
+    },
+    "evidence_quote": {
+      "type": "string",
+      "maxLength": 300
+    }
+  }
+}

@@ -1,0 +1,31 @@
+note_id,date,model,model_year,mileage,technician_note
+RO-100001,2026-05-28,CR-V,2022,14230,"Cust states infotainment screen goes black and reboots randomly while driving. Verified concern - display rebooted twice during 20 min road test. No DTCs stored. Reseated harness connectors. Escalated to tech line, awaiting guidance."
+RO-100002,2026-04-08,Accord,2019,68540,"Front brakes squealing. Pads worn to 2mm, rotors scored. R&R front pads and rotors. Cust declined rear at this time. Wear item - not warranty."
+RO-100003,2026-06-02,Civic,2023,9110,"A/C not blowing cold. Recovered refrigerant - system low. Found leak at condenser. Replaced condenser under warranty, recharged, op check good, vents 42F."
+RO-100004,2026-04-15,Odyssey,2021,41300,"cust: power sliding door pass side wont close, beeps and reverses. found obstruction sensor faulty. ordered sensor/harness. parts BO."
+RO-100005,2026-04-20,Pilot,2020,55900,"check engine light. P0420 catalyst eff below threshold bank 1. cleared, road tested, returned. advised monitor."
+RO-100006,2026-05-12,CR-V,2022,18760,bluetooth keeps disconnecting and screen froze once. reprogrammed audio unit per TSB. seems ok now
+RO-100007,2026-04-22,Civic,2018,92400,"oil leak lower engine. valve cover gasket seeping. quoted customer, declined repair today."
+RO-100008,2026-06-05,Accord,2024,3450,customer reports vehicle hesitates/stumbles on accel then CEL flashes. Could not duplicate. NFF. advised return if reoccurs.
+RO-100009,2026-04-11,Ridgeline,2021,47200,"TPMS light on. LF sensor not reading. replaced tpms sensor, relearned all 4."
+RO-100010,2026-06-15,CR-V,2023,12050,"infotainment reboot AGAIN, 3rd visit for same. cust frustrated. installed updated software and reflashed audio/nav. QA drive no fault observed."
+RO-100011,2026-05-18,CR-V,2019,78900,"AC compressor noisy, clutch not engaging. compressor failed internally. out of warranty - cust approved est. R&R compressor, evac/recharge."
+RO-100012,2026-05-02,Accord,2022,21600,"steering feels loose w/ slight clunk over bumps. found lower control arm bushing worn. warranty replaced LCA, performed alignment."
+RO-100013,2026-04-28,Civic,2020,61200,"battery dead again, cust jump started twice this week. tested battery weak + parasitic draw ~120mA over spec. suspect aftermarket dashcam hardwired to fuse box. advised cust."
+RO-100014,2026-05-09,HR-V,2023,7800,"rattle from dash area on rough roads. located loose trim clip behind glove box. secured, NFF otherwise."
+RO-100015,2026-05-05,Odyssey,2021,38900,"sliding door pass side intermittent - sometimes stops halfway. lubed track and adjusted. will monitor, possible motor."
+RO-100016,2026-06-20,CR-V,2024,2100,"screen went black on customer delivery drive, cust very upset new vehicle. rebooted on its own. no dtc. per district reps collecting data on CR-V audio units."
+RO-100017,2026-04-25,Pilot,2019,101300,trans shudders on light throttle 40-50 mph. verified. torque converter shudder. per TSB flush and replace ATF w/ updated fluid. improved on retest.
+RO-100018,2026-06-10,Civic,2022,16400,"A/C weak cooling. dye test found evap core leak. warranty - replaced evaporator, recharged. cold now."
+RO-100019,2026-05-15,Accord,2020,49000,"cust states car pulls right. uneven tire wear RF. alignment out of spec, adjusted. recommend tires soon."
+RO-100020,2026-06-08,Pilot,2023,8900,"warning - 'collision system unavailable' intermittent. cleaned front radar sensor area, no obstruction found. reflashed ADAS module. op check ok."
+RO-100021,2026-05-25,CR-V,2018,88700,"no start intermittent, cranks no start when hot. tested low fuel pressure. replaced fuel pump assembly. OOW cust pay."
+RO-100022,2026-05-22,Odyssey,2022,24300,"power sliding door driver side wont open w/ button, manual works. replaced door control motor under warranty."
+RO-100023,2026-05-30,Civic,2021,33100,CEL P0301 misfire cyl 1. found failed ignition coil #1. replaced coil and spark plug. warranty.
+RO-100024,2026-06-12,Accord Hybrid,2024,5600,"cust concerned about whining/whir noise during regen braking. explained normal hybrid operation. NFF, no repair needed."
+RO-100025,2026-06-14,HR-V,2020,66800,"AC not cold blows warm. system empty. leak at low side line fitting o-ring. replaced o-ring, recharged. OOW - cust pay."
+RO-100026,2026-06-22,CR-V Hybrid,2023,11900,"screen reboots + backup camera failed to display once when in reverse. safety concern noted. reflashed audio/nav unit, updated sw. monitoring."
+RO-100027,2026-05-20,Ridgeline,2019,74500,"rodent damage - chewed wiring harness engine bay, multiple codes present. NOT warranty (external cause). quoted harness repair, cust filing insurance."
+RO-100028,2026-06-03,Pilot,2022,19800,"cust: humming noise rear, louder with speed. road test - rear wheel bearing LH noisy. replaced hub bearing assy under warranty."
+RO-100029,2026-06-16,Accord,2021,44600,"intermittent no-crank, single click. starter and battery test ok. found loose ground cable at engine block, cleaned and torqued. could not duplicate after. NFF / repaired?"
+RO-100030,2026-06-18,Civic,2023,6300,"AC blows warm intermittently then cold. suspect compressor clutch cycling. could not duplicate today, cold at counter. told cust return when acting up. NFF."

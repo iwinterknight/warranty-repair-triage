@@ -1,0 +1,27 @@
+# Secrets / env (brief: never commit keys)
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Node / frontend
+node_modules/
+dist/
+.next/
+*.log
+
+# DuckDB local artifacts
+*.duckdb
+*.duckdb.wal
+
+# OS
+.DS_Store
+Thumbs.db

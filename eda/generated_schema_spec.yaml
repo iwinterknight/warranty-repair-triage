@@ -1,0 +1,70 @@
+schema_version: generated-0.0.1
+provenance: auto-generated from corpus evidence (lexicon-derived, zero LLM calls)
+identity_passthrough:
+- note_id
+- date
+- model
+- model_year
+- mileage
+extracted_fields:
+  component_mention:
+    type: string
+    maxLength: 80
+    rationale: frequent part-noun evidence in corpus
+  subsystem:
+    type: enum
+    values:
+    - adas_safety
+    - body_doors
+    - brakes
+    - chassis_suspension
+    - electrical_battery
+    - hvac
+    - infotainment_electronics
+    - powertrain
+    - tires_wheels
+    - other
+    rationale: clusters of co-occurring component keywords (V1 evidence)
+  warranty_status:
+    type: enum
+    values:
+    - covered
+    - denied
+    - undetermined
+    - not_applicable
+    rationale: three-way signal split observed in V2 (incl. 8 silent notes)
+  denial_reason:
+    type: enum
+    values:
+    - wear_item
+    - out_of_warranty
+    - external_cause
+    - customer_caused
+    - null
+    rationale: distinct denial phrases in corpus
+  resolution_status:
+    type: enum
+    values:
+    - repaired
+    - declined
+    - escalated
+    - monitoring
+    - nff
+    - parts_pending
+    - unclear
+    rationale: 'outcome keywords: declined/escalated/monitor/nff/parts bo'
+  severity:
+    type: enum
+    values:
+    - low
+    - medium
+    - high
+    rationale: coarse 3-level default; corpus keywords cannot anchor levels
+  severity_flags:
+    type: object
+    properties:
+    - customer_distress
+    - repeat_visit
+    - safety_related
+    - vehicle_disabled
+    rationale: flag keywords each trigger >=3 times (V3)

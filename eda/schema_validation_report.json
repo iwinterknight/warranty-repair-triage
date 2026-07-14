@@ -1,0 +1,37 @@
+{
+  "schema": "RepairNoteExtraction",
+  "n_notes": 30,
+  "v1_component_coverage": {
+    "unmapped": [],
+    "pass": true
+  },
+  "v2_warranty_signals": {
+    "undetermined(signal)": 11,
+    "silent->undetermined": 8,
+    "covered": 6,
+    "denied": 5
+  },
+  "v3_flag_trigger_counts": {
+    "repeat_visit": 3,
+    "safety_related": 6,
+    "customer_distress": 3,
+    "vehicle_disabled": 3,
+    "fleet_signal": 4,
+    "nff_signal": 5,
+    "intermittent_signal": 6,
+    "declined_signal": 2
+  },
+  "v4_top_orphans": {
+    "light": 3,
+    "tested": 3,
+    "repair": 3,
+    "updated": 3,
+    "reflashed": 3,
+    "failed": 3,
+    "loose": 3,
+    "verified": 2,
+    "twice": 2,
+    "worn": 2
+  },
+  "v5_schema_lexicon_consistent": true
+}

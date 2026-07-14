@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "RepairNoteExtractionGenerated",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "component_mention",
+    "subsystem",
+    "warranty_status",
+    "denial_reason",
+    "resolution_status",
+    "severity",
+    "severity_flags"
+  ],
+  "properties": {
+    "component_mention": {
+      "type": "string",
+      "maxLength": 80
+    },
+    "subsystem": {
+      "enum": [
+        "adas_safety",
+        "body_doors",
+        "brakes",
+        "chassis_suspension",
+        "electrical_battery",
+        "hvac",
+        "infotainment_electronics",
+        "powertrain",
+        "tires_wheels",
+        "other"
+      ]
+    },
+    "warranty_status": {
+      "enum": [
+        "covered",
+        "denied",
+        "undetermined",
+        "not_applicable"
+      ]
+    },
+    "denial_reason": {
+      "enum": [
+        "wear_item",
+        "out_of_warranty",
+        "external_cause",
+        "customer_caused",
+        null
+      ]
+    },
+    "resolution_status": {
+      "enum": [
+        "repaired",
+        "declined",
+        "escalated",
+        "monitoring",
+        "nff",
+        "parts_pending",
+        "unclear"
+      ]
+    },
+    "severity": {
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ]
+    },
+    "severity_flags": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "customer_distress",
+        "repeat_visit",
+        "safety_related",
+        "vehicle_disabled"
+      ],
+      "properties": {
+        "customer_distress": {
+          "type": "boolean"
+        },
+        "repeat_visit": {
+          "type": "boolean"
+        },
+        "safety_related": {
+          "type": "boolean"
+        },
+        "vehicle_disabled": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
