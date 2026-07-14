@@ -35,11 +35,21 @@ export default function DefectBoard() {
     if (cellNotes && drillRef.current) drillRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [cellNotes]);
 
+  // Two aggregates over the same grouping — priority (ranking) + avg mileage (context) — merged per cell.
+  // Mileage matters: the CR-V cluster is a *low-mileage* signal, so surfacing it per cell is analytically real.
   useEffect(() => {
     setCellNotes(null);
-    api
-      .aggregate({ group_by: groupBy, measure: { signal: "priority", weights }, rank: { by: "measure", dir: "desc" } })
-      .then(setResult)
+    const keyOf = (r) => groupBy.map((g) => r[g]).join("|");
+    Promise.all([
+      api.aggregate({ group_by: groupBy, measure: { signal: "priority", weights }, rank: { by: "measure", dir: "desc" } }),
+      api.aggregate({ group_by: groupBy, measure: { signal: "avg_mileage" } }),
+    ])
+      .then(([pri, mil]) => {
+        const mmap = {};
+        mil.rows.forEach((r) => { mmap[keyOf(r)] = r.measure; });
+        const rows = pri.rows.map((r) => ({ ...r, avg_mileage: mmap[keyOf(r)] ?? null }));
+        setResult({ columns: [...groupBy, "avg_mileage", "measure"], rows });
+      })
       .catch((e) => setErr(String(e)));
   }, [groupKey, weights]);
 

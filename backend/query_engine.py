@@ -40,7 +40,7 @@ CREATE TABLE extractions (
 _DIMENSIONS = {"model", "model_year", "subsystem", "warranty_status", "denial_reason",
                "resolution_status", "severity", "confidence", *_FLAGS}
 _RANGE_COLS = {"model_year", "mileage"}
-_MEASURES = {"count", "severity_index", "priority"}
+_MEASURES = {"count", "severity_index", "priority", "avg_mileage"}
 _SEVERITIES = {"low", "medium", "high", "critical"}
 
 # Default priority-score weights — SEVERITY-DOMINANT (ratified): the steep severity map means a single
@@ -167,6 +167,8 @@ def compile_query(query: dict[str, Any]) -> tuple[str, list]:
 
     if signal == "severity_index":
         measure_sql = f"({_sev_case(weights['severity_map'])})::DOUBLE / NULLIF(count(*), 0)"
+    elif signal == "avg_mileage":
+        measure_sql = "round(avg(mileage))"
     else:
         measure_sql = _measure_expr(signal, weights)
 

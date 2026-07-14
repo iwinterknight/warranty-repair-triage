@@ -5,7 +5,7 @@ import ResultTable from "./ResultTable.jsx";
 // The power surface: assign roles (Group / Filter / Measure) and get a ranked answer — same engine as presets.
 const DIMENSIONS = ["subsystem", "model", "model_year", "warranty_status", "resolution_status", "severity"];
 const FLAGS = ["safety_related", "repeat_visit", "intermittent", "fleet_signal", "customer_distress", "vehicle_disabled"];
-const MEASURES = ["count", "priority", "severity_index"];
+const MEASURES = ["count", "priority", "severity_index", "avg_mileage"];
 
 export default function QueryPanel() {
   const [groupBy, setGroupBy] = useState(["subsystem", "model"]);
@@ -14,6 +14,8 @@ export default function QueryPanel() {
   const [flag, setFlag] = useState("");
   const [yearMin, setYearMin] = useState("");
   const [yearMax, setYearMax] = useState("");
+  const [mileageMin, setMileageMin] = useState("");
+  const [mileageMax, setMileageMax] = useState("");
   const [topK, setTopK] = useState("");
   const [result, setResult] = useState(null);
   const [err, setErr] = useState(null);
@@ -28,6 +30,7 @@ export default function QueryPanel() {
     if (flag) filters.flags = { [flag]: true };
     // One-sided is fine: an empty bound becomes an open end of the range (BETWEEN 0..9999).
     if (yearMin || yearMax) filters.model_year = [Number(yearMin) || 0, Number(yearMax) || 9999];
+    if (mileageMin || mileageMax) filters.mileage = [Number(mileageMin) || 0, Number(mileageMax) || 1000000];
     const query = { group_by: groupBy, filters, measure: { signal: measure }, rank: { by: "measure", dir: "desc" } };
     if (topK && groupBy.length === 2) query.top_k = { [groupBy[0]]: Number(topK), [groupBy[1]]: 3 };
     try {
@@ -79,6 +82,13 @@ export default function QueryPanel() {
             <input value={yearMax} onChange={(e) => setYearMax(e.target.value)} placeholder="2023" /></div>
           <div className="col"><label className="f">Top-K (needs exactly 2 group fields)</label>
             <input value={topK} onChange={(e) => setTopK(e.target.value)} placeholder="10" /></div>
+        </div>
+        <div className="row">
+          <div className="col"><label className="f">Mileage ≥</label>
+            <input value={mileageMin} onChange={(e) => setMileageMin(e.target.value)} placeholder="0" /></div>
+          <div className="col"><label className="f">Mileage ≤</label>
+            <input value={mileageMax} onChange={(e) => setMileageMax(e.target.value)} placeholder="20000" /></div>
+          <div className="col" />
         </div>
         <button className="btn" style={{ marginTop: 12 }} onClick={run}>Run query</button>
         {err && <p className="err">{err}</p>}
