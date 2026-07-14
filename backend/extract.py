@@ -114,6 +114,7 @@ def extract_note(
 
     record = {
         "note_id": note_id,
+        "technician_note": technician_note,  # kept for drill-down + evidence-quote highlighting in the UI
         "passthrough": passthrough,
         "extraction": extraction,
         "meta": {

@@ -29,7 +29,8 @@ class S3Store:
         self._bucket = s.s3_bucket
         self._s3 = boto3.client(
             "s3",
-            endpoint_url=s.aws_endpoint_url,
+            # Empty endpoint → no override → real AWS S3 (the brief's "same code, drop the endpoint").
+            endpoint_url=s.aws_endpoint_url or None,
             aws_access_key_id=s.aws_access_key_id,
             aws_secret_access_key=s.aws_secret_access_key,
             region_name=s.aws_region,

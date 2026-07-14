@@ -25,8 +25,12 @@ class Settings(BaseSettings):
     openrouter_api_key: Optional[str] = None
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     llm_model: str = "openrouter/free"
-    # Bedrock (Phase 2) — managed Claude on AWS:
+    # Bedrock (Phase 2) — managed Claude on AWS. Dedicated creds so they never clash with the
+    # LocalStack dummy creds used for S3 (Bedrock is REAL AWS).
     bedrock_model_id: Optional[str] = None
+    bedrock_aws_access_key_id: Optional[str] = None
+    bedrock_aws_secret_access_key: Optional[str] = None
+    bedrock_aws_region: str = "us-east-1"
     # Optional discovery LLM — budget NEVER mixed with extraction (locked #10):
     discovery_llm_base_url: Optional[str] = None
     discovery_llm_model: Optional[str] = None
