@@ -61,9 +61,12 @@ def _i(v: Any) -> Optional[int]:
 def flatten(record: dict[str, Any]) -> tuple:
     """One cached record → one flat row (unnest severity_flags, lift passthrough + meta)."""
     p = record.get("passthrough") or {}
-    e = record.get("extraction") if isinstance(record.get("extraction"), dict) else {}
-    e = e or {}
-    f = e.get("severity_flags") or {}
+    e = record.get("extraction")
+    e = e if isinstance(e, dict) else {}
+    # A misbehaving free-router model can return severity_flags as a list, not an object → guard it
+    # (such a record failed validation and is already needs_review; here we just avoid crashing flatten).
+    f = e.get("severity_flags")
+    f = f if isinstance(f, dict) else {}
     m = record.get("meta") or {}
     row = {
         "note_id": record.get("note_id"),
@@ -208,7 +211,12 @@ class QueryEngine:
     def build_from_records(self, records: list[dict[str, Any]]) -> int:
         """(Re)materialize the derived view from cached records. Returns row count."""
         self._con.execute("DELETE FROM extractions")
-        rows = [flatten(r) for r in records]
+        rows = []
+        for r in records:
+            try:
+                rows.append(flatten(r))
+            except Exception:
+                pass  # a record we can't flatten stays in S3 / the review queue, just not in the view
         if rows:
             placeholders = ",".join(["?"] * len(_INSERT_COLS))
             self._con.executemany(f"INSERT INTO extractions VALUES ({placeholders})", rows)
