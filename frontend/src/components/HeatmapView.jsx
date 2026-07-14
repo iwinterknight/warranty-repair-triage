@@ -25,7 +25,9 @@ export default function HeatmapView({ result, gRow, gCol, onCell }) {
         axisTop={{ tickRotation: -35 }}
         axisLeft={{ legend: gRow, legendPosition: "middle", legendOffset: -130 }}
         colors={{ type: "sequential", scheme: "blues" }}
-        emptyColor="#f0f2f5"
+        emptyColor="#f4f6f8"
+        borderWidth={1}
+        borderColor="#dfe3e8"
         valueFormat=">-.1f"
         labelTextColor={{ from: "color", modifiers: [["darker", 2.2]] }}
         hoverTarget="cell"

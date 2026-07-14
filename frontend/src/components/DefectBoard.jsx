@@ -53,6 +53,14 @@ export default function DefectBoard() {
       .catch((e) => setErr(String(e)));
   }, [groupKey, weights]);
 
+  // Heatmap needs exactly 2 group fields; if we're not there, collapse to subsystem × model so one click
+  // always yields a heatmap instead of a dead/disabled button.
+  function toggleHeat() {
+    if (showHeat) return setView("table");
+    if (groupBy.length !== 2) setGroupKey("subsystem × model");
+    setView("heat");
+  }
+
   // Drill-down: fetch by subsystem/model when present, then match every grouped field client-side.
   async function openCell(row) {
     const params = {};
@@ -71,8 +79,7 @@ export default function DefectBoard() {
           <select value={groupKey} onChange={(e) => setGroupKey(e.target.value)} style={{ width: "auto" }}>
             {Object.keys(GROUPINGS).map((k) => <option key={k}>{k}</option>)}
           </select>
-          <button className="btn ghost" disabled={!canHeat} title={canHeat ? "" : "Heatmap needs exactly 2 group fields"}
-            onClick={() => setView((v) => (v === "table" ? "heat" : "table"))}>
+          <button className="btn ghost" onClick={toggleHeat}>
             {showHeat ? "Table" : "Heatmap"} view
           </button>
           <button className="btn ghost" onClick={() => setShowWeights((v) => !v)}>
