@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { api } from "../api.js";
 import ResultTable from "./ResultTable.jsx";
+import ContributingRecords from "./ContributingRecords.jsx";
+
+const val = (r, k) => r.passthrough?.[k] ?? r.extraction?.[k];
 
 // The power surface: assign roles (Group / Filter / Measure) and get a ranked answer — same engine as presets.
 const DIMENSIONS = ["subsystem", "model", "model_year", "warranty_status", "resolution_status", "severity"];
@@ -19,6 +22,9 @@ export default function QueryPanel() {
   const [topK, setTopK] = useState("");
   const [result, setResult] = useState(null);
   const [err, setErr] = useState(null);
+  const [lastQuery, setLastQuery] = useState(null);
+  const [contributing, setContributing] = useState(null);
+  const [highlight, setHighlight] = useState(new Set());
 
   const toggleGroup = (d) =>
     setGroupBy((g) => (g.includes(d) ? g.filter((x) => x !== d) : [...g, d]));
@@ -33,11 +39,49 @@ export default function QueryPanel() {
     if (mileageMin || mileageMax) filters.mileage = [Number(mileageMin) || 0, Number(mileageMax) || 1000000];
     const query = { group_by: groupBy, filters, measure: { signal: measure }, rank: { by: "measure", dir: "desc" } };
     if (topK && groupBy.length === 2) query.top_k = { [groupBy[0]]: Number(topK), [groupBy[1]]: 3 };
+    setContributing(null);
+    setLastQuery(query);
     try {
       setResult(await api.aggregate(query));
     } catch (e) {
       setErr(String(e));
     }
+  }
+
+  // Click a result row → the verbatim records behind it (matching its group values AND the query's filters).
+  async function openRow(row) {
+    const q = lastQuery;
+    if (!q) return;
+    const params = {};
+    if (row.subsystem) params.subsystem = row.subsystem;
+    if (row.model) params.model = row.model;
+    const recs = await api.extractions(params);
+    const gb = q.group_by || [];
+    const f = q.filters || {};
+    const matches = recs.filter((r) => {
+      if (r.meta?.needs_review) return false;
+      if (!gb.every((g) => String(val(r, g)) === String(row[g]))) return false;
+      if (f.warranty_status && r.extraction?.warranty_status !== f.warranty_status) return false;
+      if (f.flags) {
+        for (const [fl, b] of Object.entries(f.flags))
+          if (Boolean(r.extraction?.severity_flags?.[fl]) !== b) return false;
+      }
+      if (f.model_year) { const y = Number(val(r, "model_year")); if (y < f.model_year[0] || y > f.model_year[1]) return false; }
+      if (f.mileage) { const m = Number(val(r, "mileage")); if (m < f.mileage[0] || m > f.mileage[1]) return false; }
+      return true;
+    });
+    // Highlight the columns that put the record in this cell + drive the measure.
+    const hl = new Set(gb);
+    if (f.warranty_status) hl.add("warranty_status");
+    if (f.flags) hl.add("flags");
+    if (f.model_year) hl.add("model_year");
+    if (f.mileage) hl.add("mileage");
+    const sig = q.measure?.signal;
+    if (sig === "priority") { hl.add("severity"); hl.add("flags"); }
+    if (sig === "severity_index") hl.add("severity");
+    if (sig === "avg_mileage") hl.add("mileage");
+    setHighlight(hl);
+    setContributing(matches);
   }
 
   return (
@@ -93,7 +137,15 @@ export default function QueryPanel() {
         <button className="btn" style={{ marginTop: 12 }} onClick={run}>Run query</button>
         {err && <p className="err">{err}</p>}
       </div>
-      {result && <div className="panel"><ResultTable result={result} /></div>}
+      {result && (
+        <div className="panel">
+          <ResultTable result={result} onRowClick={openRow} />
+          <p className="muted" style={{ marginTop: 8 }}>Click a row to see the verbatim records behind it.</p>
+        </div>
+      )}
+      {contributing && (
+        <ContributingRecords records={contributing} highlight={highlight} onClose={() => setContributing(null)} />
+      )}
     </div>
   );
 }

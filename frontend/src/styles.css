@@ -46,3 +46,6 @@ label.f { display: block; font-size: 12px; color: var(--muted); margin: 6px 0 2p
 input, select { padding: 5px 7px; border: 1px solid var(--border); border-radius: 5px; font-size: 13px; width: 100%; }
 .wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
 .err { color: var(--danger); font-size: 13px; }
+th.hl, td.hl { background: #fff6d6; }          /* columns that drive the clicked statistic */
+td.dim { color: var(--muted); }
+.notecell { max-width: 340px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
