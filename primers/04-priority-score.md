@@ -15,6 +15,30 @@ lens, not the counts*.
 *Why it works on our data:* RO-100026 (CR-V Hybrid infotainment, `high` + `safety_related`) scores ~47 and
 takes the #1 cell — exactly the safety-escalating signal an analyst must see first.
 
+## Plain-English breakdown (for explaining it out loud)
+The score adds up **four things**, per cell:
+
+| Ingredient | Plain meaning | Number it produces |
+|---|---|---|
+| **severity** | how serious are these failures | each note scored `low=1/med=4/high=16/crit=64`, summed |
+| **count (n)** | how many notes in this cell (the *intersection* of the group fields) | the note count |
+| **recency** | how fresh — newest note's date vs the dataset's own oldest→newest span | `0..1` (1 = newest note in the data) |
+| **flag boosts** | red flags | `+25` safety, `+5` repeat, `+8` fleet |
+
+`score = w_sev·Σseverity + w_count·n + w_recency·recency + Σboosts`  (default dials: sev ×1, count ×1, recency ×5)
+
+**Worked example — the #1 cell, RO-100026 (CR-V Hybrid infotainment, `high` + `safety_related`, newest note):**
+`16 (high severity) + 1 (one note) + 5 (recency 1.0 × 5) + 25 (safety boost) = 47`. High not because of
+volume (n=1) but because it's serious, safety-flagged, and brand-new — exactly what to triage first.
+The decimal tails you see (e.g. `5.9`) are the recency term (rarely a whole number).
+
+- A **note** = one repair-order row (30 in the sample). **Note count** = how many notes match the cell's
+  group fields at once (e.g. `infotainment × CR-V = 4` = notes that are both).
+- **Recency** uses `date` from the CSV: `1 − (newest_overall − cell_newest) / span_days`, span = oldest→newest
+  across all notes (2026-04-08 → 2026-06-22 = 75 days). Anchored to the dataset, not "today", so it's
+  deterministic/testable; production would anchor to now.
+- **Plain counts instead?** use the `count` measure (Explore), or zero the sev/recency/boost dials.
+
 ## In the code
 - `backend/query_engine.py` → `DEFAULT_WEIGHTS` — the severity-dominant defaults (the imposed opinion).
 - `backend/query_engine.py` → `_priority_expr()` — the score as a SQL aggregate: `w_severity*Σseverity +
