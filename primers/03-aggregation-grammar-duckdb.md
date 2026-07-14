@@ -30,7 +30,29 @@ string interpolation — no SQL injection surface.
 → ADR-0006 (aggregation-as-one-grammar, DuckDB) · SDD §7.1. Three UI surfaces (presets, query panel,
 visuals) all emit this one object and hit one `/aggregate` — no divergent code paths, zero LLM in analytics.
 
+## Concurrency — why `run()` holds a lock (a bug the live run caught)
+The engine keeps **one in-memory DuckDB connection**. FastAPI runs sync endpoints in a threadpool, and the
+dashboard fires several `/aggregate` calls **in parallel** on load. A DuckDB connection isn't safe for
+concurrent queries on the same cursor: `run()` did `cur = con.execute(sql); cur.description; cur.fetchall()`
+— a second thread's `execute()` clobbered the first thread's cursor mid-flight, so a response came back with
+**one query's columns stamped on another query's rows**:
+
+```
+POST /aggregate {group_by: []}  →  {"columns":["subsystem","model","model_year","measure"],
+                                    "rows":[{"subsystem":28}], "n":1}   ← 28 is the COUNT, mislabeled
+```
+
+Fix: a `threading.Lock` serializes `run()` and `build_from_records()` (see `query_engine.py`). Queries are
+sub-millisecond, so the lock is free at this scale.
+
+**The lesson worth saying out loud:** sequential fixture tests *never* trigger this — every test call
+finishes before the next starts. Only real **parallel** requests from a browser exposed it. At production
+scale the single locked connection becomes a **connection pool** (or a per-request `con.cursor()`), which is
+the README's scaling note; the lock is the right, honest prototype answer.
+
 ## Probe deeper? (pick your dive)
+- 🔍 **The concurrency fix** — one shared connection + threadpool → interleaved cursors; why a lock (not a
+  pool) is the proportionate prototype fix, and what changes at scale.
 - 🔍 **`compile_query()` — the nested top-k branch** — how `len(group_by)==2 + top_k` becomes the CTE +
   `QUALIFY` pattern, and why DuckDB windows beat pandas here.
 - 🔍 **The whitelist guard in `_where()`** — how `_DIMENSIONS`/`_RANGE_COLS` + bound params make arbitrary
