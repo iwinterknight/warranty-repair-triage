@@ -1,0 +1,26 @@
+# Full app = frontend + backend + localstack (brief requirement).
+# This slice ships LocalStack (S3 + SQS) so the backend can be exercised against it now;
+# the backend and frontend services are added as their Dockerfiles land.
+services:
+  localstack:
+    image: localstack/localstack:3
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs            # S3 required (locked #2); SQS for async ingest (Decision G)
+      - DEBUG=0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # backend:                       # added with the Dockerfile (Day 1 core loop)
+  #   build: ./backend
+  #   env_file: .env
+  #   depends_on: { localstack: { condition: service_healthy } }
+  #   ports: ["8000:8000"]
+
+  # frontend:                      # added with the React (Vite) app (Day 2)
+  #   build: ./frontend
+  #   ports: ["3000:3000"]

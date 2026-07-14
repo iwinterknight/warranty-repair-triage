@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+pydantic>=2
+pydantic-settings>=2
+boto3
+pyyaml
+jsonschema
+duckdb
+openai
+httpx
