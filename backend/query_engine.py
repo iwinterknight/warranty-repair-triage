@@ -10,6 +10,7 @@ the table on load and as ingest lands (Decision G).
 """
 from __future__ import annotations
 
+import threading
 from typing import Any, Optional
 
 import duckdb
@@ -207,24 +208,29 @@ class QueryEngine:
     def __init__(self) -> None:
         self._con = duckdb.connect(database=":memory:")
         self._con.execute(_TABLE_DDL)
+        # One shared in-memory connection; serialize access so concurrent FastAPI worker threads don't
+        # interleave execute()/fetch() on the same cursor. Queries are sub-ms, so a lock costs nothing.
+        self._lock = threading.Lock()
 
     def build_from_records(self, records: list[dict[str, Any]]) -> int:
         """(Re)materialize the derived view from cached records. Returns row count."""
-        self._con.execute("DELETE FROM extractions")
         rows = []
         for r in records:
             try:
                 rows.append(flatten(r))
             except Exception:
                 pass  # a record we can't flatten stays in S3 / the review queue, just not in the view
-        if rows:
-            placeholders = ",".join(["?"] * len(_INSERT_COLS))
-            self._con.executemany(f"INSERT INTO extractions VALUES ({placeholders})", rows)
+        with self._lock:
+            self._con.execute("DELETE FROM extractions")
+            if rows:
+                placeholders = ",".join(["?"] * len(_INSERT_COLS))
+                self._con.executemany(f"INSERT INTO extractions VALUES ({placeholders})", rows)
         return len(rows)
 
     def run(self, query: dict[str, Any]) -> dict[str, Any]:
         sql, params = compile_query(query)
-        cur = self._con.execute(sql, params)
-        cols = [d[0] for d in cur.description]
-        rows = [dict(zip(cols, r)) for r in cur.fetchall()]
+        with self._lock:
+            cur = self._con.execute(sql, params)
+            cols = [d[0] for d in cur.description]
+            rows = [dict(zip(cols, r)) for r in cur.fetchall()]
         return {"columns": cols, "rows": rows, "n": len(rows)}

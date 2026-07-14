@@ -38,10 +38,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Warranty & Repair-Order Triage", version="0.1.0", lifespan=lifespan)
 
-# Dev CORS: the React (Vite) frontend calls the backend across ports.
+# Dev CORS: the React (Vite) frontend calls the backend across ports. Regex covers any localhost port
+# (Vite may fall back to 3001/etc.); tighten to explicit origins for a real deployment.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_methods=["*"],
     allow_headers=["*"],
 )
