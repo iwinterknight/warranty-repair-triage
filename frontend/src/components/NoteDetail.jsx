@@ -16,7 +16,10 @@ export default function NoteDetail({ record }) {
   if (!record) return null;
   const e = record.extraction || {};
   const m = record.meta || {};
-  const flags = Object.entries(e.severity_flags || {}).filter(([, v]) => v).map(([k]) => k);
+  // Guard: a misbehaving model can return severity_flags as an array; Object.entries would then yield
+  // numeric index keys ("0", "1"…) and render bogus "0" chips. Only treat a plain object as flags.
+  const sf = e.severity_flags && !Array.isArray(e.severity_flags) ? e.severity_flags : {};
+  const flags = Object.entries(sf).filter(([, v]) => v).map(([k]) => k);
 
   return (
     <div className="panel">

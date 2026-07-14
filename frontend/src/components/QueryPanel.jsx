@@ -26,7 +26,8 @@ export default function QueryPanel() {
     const filters = {};
     if (warranty) filters.warranty_status = warranty;
     if (flag) filters.flags = { [flag]: true };
-    if (yearMin && yearMax) filters.model_year = [Number(yearMin), Number(yearMax)];
+    // One-sided is fine: an empty bound becomes an open end of the range (BETWEEN 0..9999).
+    if (yearMin || yearMax) filters.model_year = [Number(yearMin) || 0, Number(yearMax) || 9999];
     const query = { group_by: groupBy, filters, measure: { signal: measure }, rank: { by: "measure", dir: "desc" } };
     if (topK && groupBy.length === 2) query.top_k = { [groupBy[0]]: Number(topK), [groupBy[1]]: 3 };
     try {

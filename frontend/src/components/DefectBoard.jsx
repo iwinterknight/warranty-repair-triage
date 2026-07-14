@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
 import ResultTable from "./ResultTable.jsx";
 import WeightsPanel, { DEFAULT_WEIGHTS } from "./WeightsPanel.jsx";
@@ -11,6 +11,12 @@ export default function DefectBoard() {
   const [cellNotes, setCellNotes] = useState(null);
   const [showWeights, setShowWeights] = useState(false);
   const [err, setErr] = useState(null);
+  const drillRef = useRef(null);
+
+  // Bring the drill-down into view — otherwise it renders below the long board table and looks like a no-op.
+  useEffect(() => {
+    if (cellNotes && drillRef.current) drillRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [cellNotes]);
 
   useEffect(() => {
     api
@@ -47,7 +53,7 @@ export default function DefectBoard() {
       {showWeights && <WeightsPanel weights={weights} onChange={setWeights} />}
 
       {cellNotes && (
-        <div className="panel">
+        <div className="panel" ref={drillRef}>
           <h3>
             Notes in this cell ({cellNotes.length})
             <button className="btn ghost" style={{ float: "right" }} onClick={() => setCellNotes(null)}>Close</button>
