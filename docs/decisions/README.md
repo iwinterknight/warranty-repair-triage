@@ -37,4 +37,5 @@ CLAUDE.md (the terse locked index) don't preserve.
 | [0008](0008-async-ingest-pipeline.md) | Async ingest / live-progress pipeline (Decision G) | §7.3 | Accepted |
 
 Foundational **locked** decisions (warranty 4-state, S3-as-cache, schema-driven, one-call-per-note, …)
-are indexed in [`../../CLAUDE.md`](../../CLAUDE.md); promote any to a full ADR if it later needs revisiting.
+predate this ADR set and are woven through the SDD (`../sdd.md`) and the schema spec; promote any to a
+full ADR if it later needs revisiting.

@@ -121,9 +121,11 @@ docs:
     compose-order: 8
   - id: locked-index
     path: CLAUDE.md
-    role: terse index of locked decisions + working agreement
+    role: terse index of locked decisions + working agreement (internal working file —
+      not included in the submission archive; its decisions are captured in the ADRs and SDD)
     authority: authoritative
     compose-order: 9
+    optional: true
   - id: project-doc-outline
     path: docs/project-doc-outline.md
     role: seed/talking-point bank for the final synthesis
