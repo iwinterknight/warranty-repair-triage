@@ -45,6 +45,10 @@ def extract_run(request: Request) -> dict:
             from_cache += 1
         if record["meta"].get("needs_review"):
             needs_review += 1
+        # Progressive refresh: rebuild the view every few records so the dashboard fills in live
+        # during a batch instead of all-at-end (poor-man's ADR-0008 until async ingest exists).
+        if processed % 5 == 0:
+            st.engine.build_from_records(st.store.list_extractions())
 
     rows_in_view = st.engine.build_from_records(st.store.list_extractions())  # refresh derived view
     used = st.store.get_budget_used()
