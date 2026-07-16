@@ -24,6 +24,8 @@ services:
       - AWS_ENDPOINT_URL=http://localstack:4566
     ports:
       - "8000:8000"
+    volumes:
+      - ./data:/app/data:ro        # live-mount the CSV so added rows are visible without a rebuild
     depends_on:
       localstack:
         condition: service_healthy # backend startup creates the bucket + rebuilds the DuckDB view
