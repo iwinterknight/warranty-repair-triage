@@ -19,9 +19,9 @@ Every feature went through the same loop before the next one started:
    what are the tradeoffs, what breaks it (e.g. I pushed back on the scoring scheme until it was
    explainable in plain English, questioned the aggregation grammar's SQL-injection surface, and drove
    the heatmap/group-by UX decisions).
-3. **Read–verify–modify at code level.** I read the generated code (the `primers/` walkthroughs exist
-   because I required line-level explainability), exercised the running app myself, and sent back
-   concrete corrections. Nothing was "done" until it survived this pass.
+3. **Read–verify–modify at code level.** I read the generated code (requiring line-level walkthroughs of
+   anything non-obvious), exercised the running app myself, and sent back concrete corrections. Nothing
+   was "done" until it survived this pass.
 
 ## What I used it for
 - **EDA & schema:** the corpus-analysis notebook and the extraction schema, authored from the notebook's
@@ -50,4 +50,4 @@ Every feature went through the same loop before the next one started:
   extraction-progress requirement — each found by me exercising the UI, then specified and fixed.
 
 The follow-up interview walks this code: everything shipped survived the loop above, and the
-`docs/decisions/` records and `primers/` walkthroughs exist so each choice is defensible line-by-line.
+`docs/decisions/` records exist so each choice is defensible line-by-line.

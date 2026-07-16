@@ -47,7 +47,7 @@ is composed *from all of the above* — which is what section 3 automates.
 
 **Instruction to the composing LLM:**
 
-1. **Read the manifest** in section 4 to learn every document, its role, and its `compose-order`.
+1. **Read the manifest** in section 5 to learn every document, its role, and its `compose-order`.
 2. **Read the source docs in `compose-order`.** Treat `schema/`, `docs/decisions/`, and `docs/sdd.md` as
    authoritative; treat `docs/*-notes.md` as chronological context.
 3. **Synthesize one narrative** with these sections, in order:
@@ -68,12 +68,59 @@ is composed *from all of the above* — which is what section 3 automates.
    design; just enumerate the AWS parts; skip the process logs"*), apply them: **expand** the named parts,
    **summarize or enumerate** the rest, **omit** what's excluded — while keeping the result coherent.
 
-**Default invocation:** *"Read `docs/README.md` section 3 and compose the full project narrative from the
-`docs/` folder."*
-**Focused example:** *"…compose the narrative, but focus on Decisions E–G (aggregation, providers, ingest)
-and only enumerate the rest."*
+6. **Include figures.** Render the architecture and data flow as **mermaid diagrams** (start from the
+   reference figures in section 5 below — adapt, don't invent components). Embed the UI captures from
+   `docs/screenshots/` where the narrative discusses the dashboard.
 
-## 4. Manifest (machine- and human-readable)
+**How to run this (the documentation-builder workflow):** zip this repository (or just `docs/` +
+`schema/`), upload the archive to any capable LLM (Claude, ChatGPT, Gemini, …), and give it one of these:
+
+- **Default:** *"Read `docs/README.md` section 3 and compose the full project documentation from this
+  archive, with figures."*
+- **Focused:** *"…compose the narrative, but focus on Decisions E–G (aggregation, providers, ingest) and
+  only enumerate the rest."*
+- **Overview:** *"…compose a one-page executive overview: problem, approach, key decisions, result."*
+- **Build story:** *"…reconstruct the build chronologically from `docs/*-notes.md`: decisions, pivots,
+  and the bugs live verification caught."*
+
+## 4. Reference figures (mermaid — adapt these when composing)
+
+**System architecture / data flow:**
+```mermaid
+flowchart LR
+    CSV[repair notes CSV] -->|POST /extract/run| BE[FastAPI backend]
+    BE -->|cache miss: 1 call/note| LLM[OpenRouter LLM<br/>schema-constrained]
+    LLM -->|validate: jsonschema +<br/>evidence-quote substring| BE
+    BE <-->|extractions/id.json<br/>_budget/day.json| S3[(S3 · LocalStack)]
+    S3 -->|rebuild on startup /<br/>every 5 records| DUCK[DuckDB in-memory view]
+    DUCK -->|query object → parameterized SQL| AGG[POST /aggregate]
+    AGG --> UI[React dashboard<br/>board · explore · review]
+    BE -->|fail → retry ≤1| RQ[needs_review queue]
+```
+
+**One note through the extraction pipeline:**
+```mermaid
+sequenceDiagram
+    participant R as /extract/run
+    participant S as S3 cache
+    participant L as LLM (OpenRouter)
+    participant V as Validator
+    R->>S: get extractions/{note_id}.json
+    alt cache hit (schema_version + note_sha256 match)
+        S-->>R: cached record (0 LLM calls)
+    else miss
+        R->>L: schema-constrained prompt (note text only)
+        L-->>V: candidate JSON
+        V->>V: jsonschema + evidence-quote substring
+        alt valid
+            V->>S: write record + provenance meta
+        else invalid (retry ≤1 exhausted)
+            V->>S: write needs_review record (quarantined)
+        end
+    end
+```
+
+## 5. Manifest (machine- and human-readable)
 
 `compose-order` is the reading order for section 3; `role` and `authority` guide synthesis.
 

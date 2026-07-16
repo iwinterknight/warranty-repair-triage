@@ -145,9 +145,23 @@ warranty adjudication source of truth (assumed the note's own statement; absent 
 The docs are modular and **self-composing** — [docs/README.md](docs/README.md) is both the map (every doc:
 role, reader, change-rate) and a load-bearing instruction that lets any LLM assemble the full project
 narrative from the parts. Highlights: [docs/decisions/](docs/decisions/) (ADRs — the *why*),
-[docs/sdd.md](docs/sdd.md) (the *how*), [primers/](primers/) (short code walkthroughs per feature),
-[schema/schema_spec.yaml](schema/schema_spec.yaml) (the contract, with per-enum semantics the runtime also
-consumes), and [LLM-USAGE.md](LLM-USAGE.md) (AI-tool disclosure).
+[docs/sdd.md](docs/sdd.md) (the *how*), [schema/schema_spec.yaml](schema/schema_spec.yaml) (the contract,
+with per-enum semantics the runtime also consumes), and [LLM-USAGE.md](LLM-USAGE.md) (AI-tool disclosure).
+
+### Build the documentation with any LLM (the documentation-builder)
+
+The documentation is designed to be *compiled on demand*: zip this repository (or just the `docs/` +
+`schema/` folders), upload it to any capable LLM (Claude, ChatGPT, Gemini, …), and prompt it — the
+compose recipe the model should follow ships inside [docs/README.md](docs/README.md) §3, including the
+reading order, source-of-truth rules, and figure guidance. Template prompts:
+
+| Goal | Prompt |
+|---|---|
+| **Full narrative** | *“Read `docs/README.md` and follow its §3 compose instructions over this archive. Produce the complete project documentation, with an architecture diagram (mermaid) and the screenshots from `docs/screenshots/` embedded where relevant.”* |
+| **Executive overview** | *“Follow `docs/README.md` §3 and compose a one-page executive overview: the business problem, the approach, the five key design decisions, and the result.”* |
+| **Deep-dive on one part** | *“Follow `docs/README.md` §3, focusing on the aggregation engine (ADR-0006 + SDD §7.1): explain the query grammar, how it compiles to SQL, and its injection-safety model. Include a request-flow diagram.”* |
+| **The build process** | *“Follow `docs/README.md` §3 and reconstruct the build chronologically from `docs/*-notes.md`: the decisions, the pivots, and the bugs found in live verification and how they were fixed.”* |
+| **Evaluation lens** | *“Follow `docs/README.md` §3 and summarize how this project addresses: runs-as-documented, judgment under ambiguity, technical & AI depth, cloud reasoning, and communication.”* |
 
 ## Tests
 
@@ -167,7 +181,7 @@ Five assertions over fixture records, including *the planted CR-V infotainment c
 
 | Shortcut (deliberate, prototype-scoped) | Production change |
 |---|---|
-| In-memory DuckDB behind a `threading.Lock` (a live-caught concurrency bug — see [primer 03](primers/03-aggregation-grammar-duckdb.md)) | connection pool; DuckDB over Parquet-on-S3 (`httpfs`) or Athena |
+| In-memory DuckDB behind a `threading.Lock` (a concurrency bug caught in live browser testing) | connection pool; DuckDB over Parquet-on-S3 (`httpfs`) or Athena |
 | Budget ledger is S3 read-modify-write (single writer) | DynamoDB atomic counter |
 | Per-process rate throttle | SQS + reserved consumer concurrency |
 | Drill-down filtering happens client-side | dedicated `/records` endpoint with server-side filters |
