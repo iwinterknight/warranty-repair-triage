@@ -28,8 +28,10 @@ Then:
 3. API reference (auto-generated): **http://localhost:8000/docs**.
 
 **Re-runs are free.** Every extraction is cached in S3 keyed by `schema_version + note_sha256`; restarting
-the stack or clicking “Run extraction” again costs **zero** LLM calls (the daily budget ledger also lives
-in S3 and survives restarts).
+the backend or clicking “Run extraction” again costs **zero** LLM calls (the daily budget ledger also lives
+in S3). One caveat: **LocalStack Community keeps S3 state in memory**, so restarting the *LocalStack
+container* resets the demo data — just click “Run extraction” again (against real AWS S3 this limitation
+disappears entirely).
 
 Environment variables (see [.env.example](.env.example)): `OPENROUTER_API_KEY` (required),
 `OPENROUTER_BASE_URL`, `LLM_MODEL`, `LLM_PROVIDER`, `AWS_ENDPOINT_URL`, `S3_BUCKET`, budget caps.
