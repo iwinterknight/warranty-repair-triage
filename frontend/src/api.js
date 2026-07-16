@@ -28,4 +28,5 @@ export const api = {
   extraction: (id) => j(`/extractions/${id}`),
   reviewQueue: () => j("/review-queue"),
   extractRun: () => j("/extract/run", { method: "POST" }),
+  extractStatus: () => j("/extract/status"),
 };

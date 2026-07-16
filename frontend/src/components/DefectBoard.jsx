@@ -17,7 +17,7 @@ const GROUPINGS = {
 // where a group field lives on a record
 const val = (r, key) => r.passthrough?.[key] ?? r.extraction?.[key];
 
-export default function DefectBoard() {
+export default function DefectBoard({ tick = 0 }) {
   const [groupKey, setGroupKey] = useState("subsystem × model × year");
   const [view, setView] = useState("table"); // "table" | "heat"
   const [weights, setWeights] = useState(DEFAULT_WEIGHTS);
@@ -37,8 +37,9 @@ export default function DefectBoard() {
 
   // Two aggregates over the same grouping — priority (ranking) + avg mileage (context) — merged per cell.
   // Mileage matters: the CR-V cluster is a *low-mileage* signal, so surfacing it per cell is analytically real.
+  useEffect(() => { setCellNotes(null); }, [groupKey]);  // changing grouping closes the drill-down
+
   useEffect(() => {
-    setCellNotes(null);
     const keyOf = (r) => groupBy.map((g) => r[g]).join("|");
     Promise.all([
       api.aggregate({ group_by: groupBy, measure: { signal: "priority", weights }, rank: { by: "measure", dir: "desc" } }),
@@ -51,7 +52,7 @@ export default function DefectBoard() {
         setResult({ columns: [...groupBy, "avg_mileage", "measure"], rows });
       })
       .catch((e) => setErr(String(e)));
-  }, [groupKey, weights]);
+  }, [groupKey, weights, tick]);  // tick bumps during a live batch so the board fills in
 
   // Heatmap needs exactly 2 group fields; if we're not there, collapse to subsystem × model so one click
   // always yields a heatmap instead of a dead/disabled button.
