@@ -56,6 +56,13 @@ extraction” again; new rows are not picked up automatically.** Already-extract
 (**zero** LLM calls), so only the new or edited rows are sent to the LLM (one call each from your daily
 quota), and the dashboard updates live as they land.
 
+- **`note_id` is the record's identity — keep it unique.** Re-using an existing id never breaks the run:
+  a row whose id *and* text match an existing record is simply skipped as a free cache hit; if the text
+  differs, it's treated as an **edit** — re-extracted, replacing the old record.
+- **Running out of provider quota mid-batch is safe:** affected notes are reported on the progress banner
+  as *“hit provider limits — will retry free on the next run”*, are **not** cached, and are picked up
+  automatically the next time you click “Run extraction”. The run itself never fails.
+
 Environment variables (see [.env.example](.env.example)): `OPENROUTER_API_KEY` (required),
 `OPENROUTER_BASE_URL`, `LLM_MODEL`, `LLM_PROVIDER`, `AWS_ENDPOINT_URL`, `S3_BUCKET`, budget caps.
 Everything environment-specific is env-driven — no hardcoded endpoints, models, or keys.

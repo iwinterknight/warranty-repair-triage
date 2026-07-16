@@ -84,6 +84,7 @@ export default function App() {
           Extracting notes — <b>{progress.done} of {progress.total}</b> processed
           {progress.from_cache > 0 && <span className="muted"> · {progress.from_cache} served from cache</span>}
           {progress.needs_review > 0 && <span className="muted"> · {progress.needs_review} sent to review</span>}
+          {progress.failed > 0 && <span className="muted"> · {progress.failed} hit provider limits — will retry free on the next run</span>}
           <div style={{ height: 6, background: "var(--border)", borderRadius: 3, marginTop: 8 }}>
             <div style={{ height: 6, borderRadius: 3, background: "var(--accent)", transition: "width .4s",
                           width: `${(progress.done / Math.max(1, progress.total)) * 100}%` }} />
