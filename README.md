@@ -256,3 +256,8 @@ ask-layer over the same `/aggregate` engine.
 AI-assisted development is disclosed in [LLM-USAGE.md](LLM-USAGE.md). At runtime the LLM is used in
 exactly one place — turning a note into a schema-shaped record at ingest. Everything the analyst sees is
 deterministic.
+
+---
+
+*© 2026 Sunit Singh. Created solely for Honda's candidate-evaluation process and shared for evaluation
+purposes only; all other rights reserved (see [NOTICE](NOTICE)).*
