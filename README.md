@@ -68,7 +68,9 @@ number highlighted, row-expand for full detail, and **CSV export**.
 
 Extractions that failed validation or came back low-confidence are **quarantined here and excluded from
 all aggregates by default** — the tool never counts what it isn't sure of. Each entry shows exactly *why*
-it's in review (e.g. the model omitted a required field).
+it's in review (e.g. the model omitted a required field). *(This capture shows a clean run — 30/30
+validated. The free router varies: another run put 2 notes here with `'complaint_summary' is a required
+property` as the recorded reason — the guardrail in action.)*
 
 ---
 
