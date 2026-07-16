@@ -96,6 +96,19 @@ def test_watch_cohort_intermittent():
     assert res["n"] >= 1, "watch cohort should surface intermittent notes"
 
 
+def test_severity_index_measure():
+    # regression: severity_index once emitted a per-row CASE outside an aggregate (invalid SQL)
+    res = _engine().run({
+        "group_by": ["subsystem"],
+        "filters": {"warranty_status": "denied"},
+        "measure": {"signal": "severity_index"},
+        "rank": {"by": "measure", "dir": "desc"},
+    })
+    assert "measure" in res["columns"]  # runs without error, filtered + grouped
+    res2 = _engine().run({"group_by": [], "measure": {"signal": "severity_index"}})
+    assert res2["rows"][0]["measure"] is not None  # population form works too
+
+
 def test_nested_topk_smoke():
     res = _engine().run({
         "group_by": ["model", "subsystem"],

@@ -26,6 +26,8 @@ def aggregate(
         return engine.run(query)
     except ValueError as e:  # bad field / measure → client error, not a 500
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:  # engine/SQL failure → structured 500 (keeps CORS headers, readable in the UI)
+        raise HTTPException(status_code=500, detail=f"query failed: {type(e).__name__}: {e}")
 
 
 @router.get("/presets")

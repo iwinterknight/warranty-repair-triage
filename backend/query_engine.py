@@ -166,7 +166,8 @@ def compile_query(query: dict[str, Any]) -> tuple[str, list]:
     weights = {**DEFAULT_WEIGHTS, **((query.get("measure") or {}).get("weights") or {})}
 
     if signal == "severity_index":
-        measure_sql = f"({_sev_case(weights['severity_map'])})::DOUBLE / NULLIF(count(*), 0)"
+        # avg of the per-note severity weight (the CASE is per-row, so it must sit inside an aggregate)
+        measure_sql = f"round(avg({_sev_case(weights['severity_map'])}), 2)"
     elif signal == "avg_mileage":
         measure_sql = "round(avg(mileage))"
     else:
