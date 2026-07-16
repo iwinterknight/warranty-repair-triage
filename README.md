@@ -84,9 +84,17 @@ same click-to-drill.
 
 A query builder over one aggregation grammar: pick **group-by** fields, a **measure**
 (`count` / `priority` / `severity_index` / `avg_mileage`), **filters** (warranty, flags, model-year and
-mileage ranges), and optional **top-K**. Clicking a result row opens **Contributing records** — the exact
-verbatim notes behind that statistic (respecting all active filters), with the columns that drive the
-number highlighted, row-expand for full detail, and **CSV export**.
+mileage ranges), and optional **top-K**.
+
+**Every number is auditable — click any listed row (statistic) to see exactly which records produced it:**
+
+![Contributing records](docs/screenshots/05-contributing-records.png)
+
+Clicking a result row opens **Contributing records** — the verbatim technician notes behind that
+statistic (respecting all active filters), with the fields that put each record in the statistic and
+that drive the measure **highlighted**; a row expands to full detail with the model's `evidence_quote`
+highlighted inside the source text, and the set exports to **CSV**. The same pattern applies on the
+Defect Board: click any cell → *“Notes in this cell”* with per-note evidence highlighting.
 
 ### 3 — Review Queue: *the honesty surface*
 ![Review Queue](docs/screenshots/04-review-queue.png)
