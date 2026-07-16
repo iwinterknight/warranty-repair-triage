@@ -14,18 +14,31 @@ dashboard surfaces the defect concentrations — no LLM anywhere in the analytic
 
 Prereqs: **Docker** (with Compose) and a free **OpenRouter API key** ([openrouter.ai/settings/keys](https://openrouter.ai/settings/keys) — no credit card).
 
+**1. Add your API key** — the only configuration step:
 ```bash
-git clone https://github.com/iwinterknight/warranty-repair-triage.git
-cd warranty-repair-triage
-cp .env.example .env        # then set OPENROUTER_API_KEY=sk-or-...
-docker compose up --build   # starts LocalStack → backend → frontend, in order
+cd warranty-repair-triage           # the unzipped archive (or a fresh clone)
+cp .env.example .env                # then edit .env and set OPENROUTER_API_KEY=sk-or-<your key>
 ```
+Leave every other value in `.env` as-is — the AWS entries are **LocalStack dummies** (AWS is emulated
+locally; no AWS account or credentials are needed).
 
-Then:
-1. Open **http://localhost:3000** and click **“Run extraction”** (one time). The 30 sample notes stream
-   through the LLM under the free-tier throttle — takes ~2–3 minutes and ~30–40 of the 50 daily calls.
-2. Watch the **Defect Board** populate. The CR-V infotainment cluster should rank #1.
-3. API reference (auto-generated): **http://localhost:8000/docs**.
+**2. Start the whole application with one command:**
+```bash
+docker compose up --build
+```
+This builds and starts, in order: **LocalStack** (emulated S3) → **backend** (FastAPI — waits for
+LocalStack to be healthy) → **frontend** (the dashboard). The first build pulls base images, so allow a
+few minutes.
+
+**3. Open http://localhost:3000 and click “Run extraction.”** What you'll see:
+- the button switches to **“Extracting… x/30”**, and a **progress banner with a bar** appears —
+  *“Extracting notes — x of 30 processed · n served from cache · m sent to review”*;
+- the **Defect Board fills in live** as records land (the view refreshes every few records);
+- the full batch takes **~2–3 minutes** under the free-tier rate limit and uses **~30–40 of your 50
+  daily free calls**. When it completes, the **CR-V infotainment cluster ranks #1** on the board.
+
+**4. Explore.** The dashboard tour below explains each view; the auto-generated API reference is at
+**http://localhost:8000/docs**.
 
 **Re-runs are free.** Every extraction is cached in S3 keyed by `schema_version + note_sha256`; restarting
 the backend or clicking “Run extraction” again costs **zero** LLM calls (the daily budget ledger also lives
@@ -37,9 +50,11 @@ disappears entirely).
 `docker compose exec localstack awslocal s3 rm s3://repair-triage --recursive` (or just
 `docker compose restart localstack`), then click “Run extraction” again.
 
-**Adding your own notes (optional):** append rows to `data/repair_notes_sample.csv` (same columns) and
-click “Run extraction” — already-extracted notes are cache hits (zero LLM calls); only new or edited
-rows are sent to the LLM, and the board updates live.
+**Adding your own notes (optional):** append rows to `data/repair_notes_sample.csv` (same columns:
+`note_id, date, model, model_year, mileage, technician_note`), then — **important — click “Run
+extraction” again; new rows are not picked up automatically.** Already-extracted notes are cache hits
+(**zero** LLM calls), so only the new or edited rows are sent to the LLM (one call each from your daily
+quota), and the dashboard updates live as they land.
 
 Environment variables (see [.env.example](.env.example)): `OPENROUTER_API_KEY` (required),
 `OPENROUTER_BASE_URL`, `LLM_MODEL`, `LLM_PROVIDER`, `AWS_ENDPOINT_URL`, `S3_BUCKET`, budget caps.
