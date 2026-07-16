@@ -217,7 +217,7 @@ Five assertions over fixture records, including *the planted CR-V infotainment c
 | Per-process rate throttle | SQS + reserved consumer concurrency |
 | Drill-down filtering happens client-side | dedicated `/records` endpoint with server-side filters |
 | Dev CORS regex (any localhost port) | explicit allowed origins |
-| Free-router model variance → ~2/30 notes land in review (missing required fields) | stronger model via the provider seam (Bedrock Claude) — pipeline unchanged |
+| Free-router model variance: depending on which model the router picks, a run may send a few notes to the review queue (e.g. a missing required field) — we observed 0–2 of 30 across runs; the quarantine handles it | stronger model via the provider seam (Bedrock Claude) — pipeline unchanged |
 | Async ingest (SQS workers + live progress) designed ([ADR-0008](docs/decisions/0008-async-ingest-pipeline.md)) but **not built** — deliberate scope cut | build the queue consumer path; it's the same `extract()` behind `POST /ingest` |
 | No auth / accounts / multi-tenancy | out of scope per the brief |
 
