@@ -33,6 +33,14 @@ in S3). One caveat: **LocalStack Community keeps S3 state in memory**, so restar
 container* resets the demo data — just click “Run extraction” again (against real AWS S3 this limitation
 disappears entirely).
 
+**Resetting the demo (optional):** wipe the extraction cache and rebuild from scratch with
+`docker compose exec localstack awslocal s3 rm s3://repair-triage --recursive` (or just
+`docker compose restart localstack`), then click “Run extraction” again.
+
+**Adding your own notes (optional):** append rows to `data/repair_notes_sample.csv` (same columns) and
+click “Run extraction” — already-extracted notes are cache hits (zero LLM calls); only new or edited
+rows are sent to the LLM, and the board updates live.
+
 Environment variables (see [.env.example](.env.example)): `OPENROUTER_API_KEY` (required),
 `OPENROUTER_BASE_URL`, `LLM_MODEL`, `LLM_PROVIDER`, `AWS_ENDPOINT_URL`, `S3_BUCKET`, budget caps.
 Everything environment-specific is env-driven — no hardcoded endpoints, models, or keys.
