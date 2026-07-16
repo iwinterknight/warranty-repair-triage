@@ -1,0 +1,11 @@
+# Keep the backend build context lean + never bake secrets into images.
+.git
+.venv
+.env
+**/__pycache__
+frontend/node_modules
+frontend/dist
+eda
+docs
+primers
+tests

@@ -1,13 +1,12 @@
-# Full app = frontend + backend + localstack (brief requirement).
-# This slice ships LocalStack (S3 + SQS) so the backend can be exercised against it now;
-# the backend and frontend services are added as their Dockerfiles land.
+# Full application: `docker compose up --build` starts LocalStack → backend → frontend, in order.
+# Prereq: cp .env.example .env and set OPENROUTER_API_KEY (see README).
 services:
   localstack:
     image: localstack/localstack:3
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3,sqs            # S3 required (locked #2); SQS for async ingest (Decision G)
+      - SERVICES=s3,sqs            # S3 required (locked #2); SQS reserved for async ingest (Decision G)
       - DEBUG=0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
@@ -15,12 +14,23 @@ services:
       timeout: 5s
       retries: 5
 
-  # backend:                       # added with the Dockerfile (Day 1 core loop)
-  #   build: ./backend
-  #   env_file: .env
-  #   depends_on: { localstack: { condition: service_healthy } }
-  #   ports: ["8000:8000"]
+  backend:
+    build:
+      context: .                   # repo root — the app loads schema/ + data/ by relative path
+      dockerfile: backend/Dockerfile
+    env_file: .env                 # your OpenRouter key etc. (never committed)
+    environment:
+      # Inside the compose network the S3 endpoint is the service name, not localhost.
+      - AWS_ENDPOINT_URL=http://localstack:4566
+    ports:
+      - "8000:8000"
+    depends_on:
+      localstack:
+        condition: service_healthy # backend startup creates the bucket + rebuilds the DuckDB view
 
-  # frontend:                      # added with the React (Vite) app (Day 2)
-  #   build: ./frontend
-  #   ports: ["3000:3000"]
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"                  # dashboard at http://localhost:3000
+    depends_on:
+      - backend
